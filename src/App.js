@@ -1,71 +1,44 @@
-import React, { Component } from "react";
-import "./App.css";
-import unsplash, {test_key, API_KEY, API_SECRET, unsplash_api} from "./unsplash-api.js";
-import stoicapi from "stoic-api";
+import React, { Component } from 'react';
+import './App.css';
+import stoicapi from 'stoic-api';
+import { API_KEY, unsplashApi } from './unsplash-api';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+    this.canvas = React.createRef();
     this.getPhoto = this.getPhoto.bind(this);
     this.addText = this.addText.bind(this);
-    this.getLines = this.getLines.bind(this);
   }
 
   async getPhoto() {
-    const ctx = this.refs.canvas.getContext("2d");
+    const ctx = this.canvas.current.getContext('2d');
     ctx.clearRect(0, 0, 400, 600);
 
-    const req_url = unsplash_api + "photos/random?query=nature&client_id="+API_KEY+"&w=400&h=600&fit=clamp";
-    const response = await fetch(req_url);
+    const reqUrl = `${unsplashApi}photos/random?query=nature&client_id=${API_KEY}&w=400&h=600&fit=clamp`;
+    const response = await fetch(reqUrl);
     const json = await response.json();
-    console.log(json);
 
-    const img_url = json['urls']['small'];
-    var img = new Image();
-    img.src = img_url;
+    const imgUrl = json.urls.small;
+    const img = new Image();
+    img.src = imgUrl;
     img.onload = () => {
       ctx.drawImage(img, 0, 0);
       this.addText();
     };
   }
 
-  addText() {
-    const ctx = this.refs.canvas.getContext("2d");
-    console.log(ctx);
+  static getLines(ctx, text, maxWidth) {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = words[0];
 
-    const quote = stoicapi.random();
-
-    const lines = this.getLines(ctx, quote, 200);
-    console.log(lines);
-
-    var cnt = 1;
-    lines.forEach(function(line) {
-      console.log("in loop", line, cnt);
-      ctx.font = "18px serif";
-      ctx.fillStyle = "black";
-      ctx.lineWidth = 15;
-      ctx.strokeText(line, 40, cnt*35 + 40);
-      ctx.font = "18px serif";
-      ctx.fillStyle = "white";
-      ctx.fillText(line, 40, cnt * 35 + 40);
-      cnt += 1;
-    });
-
-    //ctx.font = '18px serif'
-    //ctx.fillText(quote, 0, 50)
-  }
-
-  getLines(ctx, text, maxWidth) {
-    var words = text.split(" ");
-    var lines = [];
-    var currentLine = words[0];
-
-    for (var i = 1; i < words.length; i++) {
-      var word = words[i];
-      var width = ctx.measureText(currentLine + " " + word).width;
+    for (let i = 1; i < words.length; i += 1) {
+      const word = words[i];
+      const { width } = ctx.measureText(`${currentLine} ${word}`);
       if (width < maxWidth) {
-        currentLine += " " + word;
+        currentLine += ` ${word}`;
       } else {
         lines.push(currentLine);
         currentLine = word;
@@ -75,14 +48,34 @@ class App extends Component {
     return lines;
   }
 
+  addText() {
+    const ctx = this.canvas.current.getContext('2d');
+
+    const quote = stoicapi.random();
+
+    const lines = App.getLines(ctx, quote, 200);
+
+    let cnt = 1;
+    lines.forEach((line) => {
+      ctx.font = '18px serif';
+      ctx.fillStyle = 'black';
+      ctx.lineWidth = 15;
+      ctx.strokeText(line, 40, cnt * 35 + 40);
+      ctx.font = '18px serif';
+      ctx.fillStyle = 'white';
+      ctx.fillText(line, 40, cnt * 35 + 40);
+      cnt += 1;
+    });
+  }
+
   render() {
     return (
       <div className="App">
         <header className="App-header">
-          <canvas ref="canvas" width={400} height={600} />
-          <button onClick={this.getPhoto}>Get Photo</button>
-          <button onClick={this.addText}>Get Quote</button>
-          <button onClick={test_key}>Test Key</button>
+          <canvas ref={this.canvas} width={400} height={600} />
+          <button type="button" onClick={this.getPhoto}>
+            Get Photo
+          </button>
         </header>
       </div>
     );
