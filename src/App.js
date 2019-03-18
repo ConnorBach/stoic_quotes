@@ -53,13 +53,16 @@ class App extends Component {
 
     const quote = stoicapi.random();
 
-    const lines = App.getLines(ctx, quote, 200);
+    const lines = App.getLines(ctx, quote, 220);
+
+    ctx.miterLimit = 2;
+    ctx.lineJoin = 'round';
 
     let cnt = 1;
     lines.forEach((line) => {
       ctx.font = '18px serif';
       ctx.fillStyle = 'black';
-      ctx.lineWidth = 15;
+      ctx.lineWidth = 7;
       ctx.strokeText(line, 40, cnt * 35 + 40);
       ctx.font = '18px serif';
       ctx.fillStyle = 'white';
