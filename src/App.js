@@ -16,7 +16,7 @@ class App extends Component {
     const ctx = this.refs.canvas.getContext("2d");
     ctx.clearRect(0, 0, 400, 600);
 
-    const req_url = unsplash_api + "photos/random?query=nature&client_id="+API_KEY;
+    const req_url = unsplash_api + "photos/random?query=nature&client_id="+API_KEY+"&w=400&h=600&fit=clamp";
     const response = await fetch(req_url);
     const json = await response.json();
     console.log(json);
@@ -44,10 +44,11 @@ class App extends Component {
       console.log("in loop", line, cnt);
       ctx.font = "18px serif";
       ctx.fillStyle = "black";
-      ctx.lineWidth = 6;
-      ctx.strokeText(line, 30, cnt*35 + 40);
+      ctx.lineWidth = 15;
+      ctx.strokeText(line, 40, cnt*35 + 40);
+      ctx.font = "18px serif";
       ctx.fillStyle = "white";
-      ctx.fillText(line, 30, cnt * 35 + 40);
+      ctx.fillText(line, 40, cnt * 35 + 40);
       cnt += 1;
     });
 
